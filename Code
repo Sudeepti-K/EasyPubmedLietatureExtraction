@@ -1,0 +1,26 @@
+#Install required libraries
+
+install.packages("kableExtra")
+install.packages("dplyr")
+install.packages("easyPubMed")
+
+#Import required libraries in the R Environment
+
+library(kableExtra)
+library(dplyr)
+library(easyPubMed)
+
+#Extract and retrieve literature
+
+my_query <- readline(prompt="Enter keywords: ")
+my_query <- get_pubmed_ids(my_query)
+my_abstracts_xml <- fetch_pubmed_data(my_query)
+all_xml <- articles_to_list(my_abstracts_xml)
+
+#Aggregate into a dataframe with Pubmed ID, DOI, Title, Abstract, etc. for each result
+
+final_df <- do.call(rbind, lapply(all_xml, article_to_df, max_chars = -1, getAuthors = TRUE))
+
+#Save the file
+
+write.csv(final_df, file=file.choose())
